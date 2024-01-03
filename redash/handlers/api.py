@@ -2,6 +2,11 @@ from flask import make_response
 from flask_restful import Api
 from werkzeug.wrappers import Response
 
+from redash.handlers.chat import(
+     ChatResource
+)
+
+
 from redash.handlers.alerts import (
     AlertListResource,
     AlertMuteResource,
@@ -103,6 +108,7 @@ class ApiExt(Api):
 
 
 api = ApiExt()
+api.add_org_resource(ChatResource, "/api/chat", endpoint="chat")
 
 
 @api.representation("application/json")
