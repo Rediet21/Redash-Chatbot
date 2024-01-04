@@ -1,29 +1,61 @@
+import psycopg2
 import os
-import glob
-import sqlalchemy
 
-def execute_sql_scripts(database_uri, sql_directory):
-    engine = sqlalchemy.create_engine(database_uri)
+# Connection parameters
+db_params = {
+    'host': 'localhost',
+    'port': 15432,
+    'database': 'postgres',
+    'user': 'postgres',
+    'password': '',
+}
 
-    # Get all SQL files in the specified directory
-    sql_files = glob.glob(os.path.join(sql_directory, '*.sql'))
+directory_path = '../sql'
 
-    # Execute SQL statements from each file
-    for sql_file in sql_files:
-        with open(sql_file, 'r') as file:
-            sql_statements = file.read()
+def execute_sql_files(directory_path, connection_params):
+    try:
+        # Establish a connection
+        connection = psycopg2.connect(**connection_params)
+        cursor = connection.cursor()
+        print("Connected to the database!")
 
-        # Split statements based on semicolons
-        statements = sql_statements.split(';')
+        try:
+            # Iterate over all files in the specified directory
+            for filename in os.listdir(directory_path):
+                if filename.endswith(".sql"):
+                    file_path = os.path.join(directory_path, filename)
 
-        # Execute each statement
-        with engine.connect() as connection:
-            for statement in statements:
-                if statement.strip():
-                    connection.execute(statement)
+                    # Read the contents of the SQL file
+                    with open(file_path, 'r') as sql_file:
+                        sql_query = sql_file.read()
+
+                    # Execute the SQL query
+                    cursor.execute(sql_query)
+                    print(f"Executed SQL file: {filename}")
+
+            # Commit the changes to the database
+            connection.commit()
+            print("All SQL files executed successfully.")
+
+        except Exception as e:
+            # Rollback in case of an error
+            connection.rollback()
+            print(f"Error executing SQL files: {e}")
+
+        finally:
+            # Close the cursor and connection
+            cursor.close()
+            connection.close()
+            print('Finished!')
+
+    except Exception as e:
+        print(f"Error: Unable to connect to the database. {e}")
+
+    finally:
+        # Close the connection
+        if connection:
+            connection.close()
+            print("Connection closed.")
 
 if __name__ == "__main__":
-    database_uri = "sqlite:///youtube_data.db"  # SQLite example, replace with your database URI
-    sql_directory = "sql_scripts"  # Replace with the actual path to your SQL scripts directory
-
-    execute_sql_scripts(database_uri, sql_directory)
+    execute_sql_files(directory_path, db_params)
