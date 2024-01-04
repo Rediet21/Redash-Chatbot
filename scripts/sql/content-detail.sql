@@ -1,4 +1,4 @@
-CREATE TABLE content-detail (
+CREATE TABLE content_detail (
     Date DATE,
     Content_type VARCHAR(255),
     Views INT,
