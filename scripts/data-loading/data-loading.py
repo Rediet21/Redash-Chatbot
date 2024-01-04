@@ -13,7 +13,7 @@ def process_and_persist_data(main_directory, database_uri):
         "Content_Details": ["Content type", "Subtitles and CC"],
         "Viewer_Information": ["New and returning viewers", "Viewership by Date"],
         "Geographic_Information": ["Cities", "Geography"],
-        "Device_and_OS": ["Device type", "Operating System"],
+        "Device_and_OS": ["Device type", "Operating syzstem"],
         "Subscription_Details": ["Subscription source", "Subscription status"],
         "Sharing_and_Traffic": ["Sharing service", "Traffic source"],
     }
