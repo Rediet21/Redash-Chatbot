@@ -1,44 +1,46 @@
-You can use this folder to add scripts and configurations to customize Redash build and development loop.
+**Project Directory**
 
-## How to customize Webpack
+This directory contains Python scripts and SQL scripts for setting up and loading data into a database. Follow the steps below to create tables and load data in the correct order.
 
-### Configurable parameters
-
-You can override the values of configurable parameters by exporting a `CONFIG` object from the module located at `scripts/config`.
-
-Currently the following parameters are supported:
-
-- **staticPath**: Override the location of Redash static files (default = `/static/`).
-
-#### Example Configuration (`scripts/config.js`):
-
-```javascript
-module.exports = {
-  staticPath: "my/redash/static/path"
-};
+**Directory Structure**
+```bash
+project_directory/
+|-- python_scripts/
+| |-- create_tables.py
+| |-- load_data.py
+|-- sql_scripts/
+| |-- create_table_script.sql
+|-- data/
+| |-- data_file.csv
+|-- README.md
 ```
 
-### Programmatically
+**1. Create Tables**
 
-For advanced customization, you can provide a script to apply any kind of overrides to the default config as provided by `webpack.config.js`.
+Before loading data, you need to create the necessary tables in the database.
 
-The override module must be located under `scripts/webpack/overrides`. It should export a `function` that receives the Webpack configuration object and returns the overridden version.
+**Command:**
 
-#### Example Override Script (`scripts/webpack/overrides.js`):
+```bash
+cd dataloading
 
-This is an example of an override that enables Webpack stats.
-
-```javascript
-function applyOverrides(webpackConfig) {
-  return {
-    ...webpackConfig,
-    stats: {
-      children: true,
-      modules: true,
-      chunkModules: true
-    }
-  };
-}
-
-module.exports = applyOverrides;
 ```
+
+```bash
+python run_sql.py 
+```
+
+This Python script (create_tables.py) utilizes the SQL script (create_table_script.sql) to create tables in the specified database.
+
+2. Load Data
+
+After creating tables, you can load data into the database.
+
+```bash
+python dataload.py 
+```
+Replace <database_uri> with your actual database connection URI.
+
+This Python script (load_data.py) uses Pandas to load data from the specified CSV file (data/data_file.csv) into the corresponding tables in the database.
+
+Note: Make sure to execute the commands in the given order to avoid trying to load data before creating tables.

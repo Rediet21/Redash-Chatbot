@@ -13,7 +13,7 @@ def process_and_persist_data(main_directory, database_uri):
         "Content_Details": ["Content type", "Subtitles and CC"],
         "Viewer_Information": ["New and returning viewers", "Viewership by Date"],
         "Geographic_Information": ["Cities", "Geography"],
-        "Device_and_OS": ["Device type", "Operating System"],
+        "Device_and_OS": ["Device type", "Operating syzstem"],
         "Subscription_Details": ["Subscription source", "Subscription status"],
         "Sharing_and_Traffic": ["Sharing service", "Traffic source"],
     }
@@ -40,25 +40,31 @@ def process_and_persist_data(main_directory, database_uri):
     # Separate the 'Viewer-Data' dataframe into two based on the 'Viewer age' column
     if 'Demographics' in dataframes:
         demographics_df = dataframes['Demographics']
-        viewer_age_df = demographics_df[['Viewer age', 'Views (%)', 'Average view duration', 'Average percentage viewed (%)', 'Watch time (hours) (%)', 'Viewer gender']]
-        demographics_df.drop(['Viewer age','Viewer gender' ,'Views (%)', 'Average view duration', 'Average percentage viewed (%)', 'Watch time (hours) (%)'], axis=1, inplace=True)
+
+        # Check if the specified columns exist in the DataFrame
+        viewer_age_columns = ['Viewer age', 'Views (%)', 'Average view duration', 'Average percentage viewed (%)', 'Watch time (hours) (%)', 'Viewer gender']
+        if all(col in demographics_df.columns for col in viewer_age_columns):
+            viewer_age_df = demographics_df[viewer_age_columns]
+            demographics_df.drop(['Viewer age', 'Viewer gender', 'Views (%)', 'Average view duration', 'Average percentage viewed (%)', 'Watch time (hours) (%)'], axis=1, inplace=True)
+        else:
+            print("Warning: Viewer age columns not found in Demographics DataFrame. Skipping viewer_age_df creation.")
 
     # Set up the database connection
     db_connector = DatabaseConnector(database_uri)
 
     # Persist dataframes into corresponding tables
-    if 'Demographics' in dataframes:
-        db_connector.persist_dataframe(demographics_df, 'demographics_table')
+    if 'Demographics' in dataframes and 'viewer_age_df' in locals():
+        db_connector.persist_dataframe(viewer_age_df, 'viewer_age_table')
 
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Content_Details']), 'content_details_table')
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Viewer_Information']).drop(['Watch time (hours)','Average view duration'], axis=1), 'viewer_info_table')
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Geographic_Information']), 'geography_info_table')
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Device_and_OS']), 'device_info_table')
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Subscription_Details']), 'subscription_info_table')
-    db_connector.persist_dataframe(pd.DataFrame(dataframes['Sharing_and_Traffic']), 'sharing_info_table')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Content_Details']), 'content_detail')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Viewer_Information']).drop(['Watch time (hours)', 'Average view duration'], axis=1), 'demographics')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Geographic_Information']), 'geography')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Device_and_OS']), 'device')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Subscription_Details']), 'subscribe')
+    db_connector.persist_dataframe(pd.DataFrame(dataframes['Sharing_and_Traffic']), 'sharing')
 
 if __name__ == "__main__":
-    main_directory = "youtube-data"  
-    database_uri = "sqlite:///youtube_data.db"  
+    main_directory = "../Data/youtube-data"  
+    database_uri = "postgresql://postgres@localhost:15432/postgres"  # Update with your PostgreSQL connection details
 
     process_and_persist_data(main_directory, database_uri)
