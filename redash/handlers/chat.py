@@ -4,6 +4,16 @@ from redash.handlers.base import (
 )
 import os
 from openai import OpenAI
+#usage of langchain
+from langchain.llms.openai import OpenAI
+
+from langchain.agents import create_sql_agent
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.agents import AgentExecutor
+
+from langchain.sql_database import SQLDatabase
+import psycopg2
+
 VARIABLE_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(
   api_key=VARIABLE_KEY
