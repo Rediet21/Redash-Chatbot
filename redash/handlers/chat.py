@@ -19,11 +19,32 @@ client = OpenAI(
   api_key=VARIABLE_KEY
 )
 
+# db = SQLDatabase.from_uri('postgresql+psycopg2://admin:password123@localhost/admin')
+db = SQLDatabase.from_uri('postgresql://postgres@localhost:15432/postgres')
+from langchain.chat_models import ChatOpenAI
+llm = ChatOpenAI(model_name="gpt-3.5-turbo")
+
+     
+
+toolkit = SQLDatabaseToolkit(db=db,llm=llm)
+
+# Create LangChain SQL agent executor
+agent_executor = create_sql_agent(
+    llm=llm,
+    toolkit=toolkit,
+    verbose=True
+)
+
+agent_executor.run("using the teachers table, find the first_name and last name of teachers who earn less the mean salary?")
+
 class ChatResource(BaseResource):
     def post(self):
         try:
             value = request.get_json()
             question = value.get('question')
+            # Execute the LangChain agent to interact with the database
+            langchain_response = agent_executor.run(question)
+
             completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -31,8 +52,10 @@ class ChatResource(BaseResource):
                     {"role": "user", "content": question}
                 ]
             )
-            answer = completion.choices[0].message.content
-            response_data = {"answer": answer}
+           
+            #answer = completion.choices[0].message.content
+            response_data = {"answer": langchain_response}
+            
             return jsonify(response_data), 200
         except Exception as error:
             print(error)
