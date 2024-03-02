@@ -5,7 +5,7 @@ import os
 db_params = {
     'host': 'localhost',
     'port': 15432,
-    'database': 'postgres',
+    'database': 'new',
     'user': 'postgres',
     'password': '',
 }

@@ -8,6 +8,7 @@ def process_and_persist_data(main_directory, database_uri):
     dataframes = {}
 
     # Define groups and corresponding directories
+    #viewer-Data = veiewr gender & Age
     groups = {
         "Demographics": ["Viewer-Data"],
         "Content_Details": ["Content type", "Subtitles and CC"],
@@ -33,7 +34,7 @@ def process_and_persist_data(main_directory, database_uri):
                     # Categorize DataFrames based on file names within each group
                     if 'chart' in file_path.lower() or 'view' in file_path.lower():
                         group_data = pd.concat([group_data, df], ignore_index=True)
-
+                      
         # Store the categorized DataFrames in the dataframes dictionary
         dataframes[f"{group}"] = group_data
 
@@ -64,7 +65,7 @@ def process_and_persist_data(main_directory, database_uri):
     db_connector.persist_dataframe(pd.DataFrame(dataframes['Sharing_and_Traffic']), 'sharing')
 
 if __name__ == "__main__":
-    main_directory = "../Data/youtube-data"  
-    database_uri = "postgresql://postgres@localhost:15432/postgres"  # Update with your PostgreSQL connection details
+    main_directory = "../Data"  
+    database_uri = "postgresql://postgres@localhost:15432/new"  # Update with your PostgreSQL connection details
 
     process_and_persist_data(main_directory, database_uri)
