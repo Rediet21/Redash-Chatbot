@@ -3,7 +3,7 @@ from redash.handlers.base import (
     BaseResource
 )
 import os
-from openai import OpenAI
+#from openai import OpenAI
 #usage of langchain
 from langchain.llms.openai import OpenAI
 
@@ -20,8 +20,8 @@ client = OpenAI(
 )
 
 # db = SQLDatabase.from_uri('postgresql+psycopg2://admin:password123@localhost/admin')
-db = SQLDatabase.from_uri('postgresql://postgres@localhost:15432/postgres')
-from langchain.chat_models import ChatOpenAI
+db = SQLDatabase.from_uri('postgresql://postgres@localhost:15432/new')
+#from langchain.chat_models import ChatOpenAI
 llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
      
@@ -35,8 +35,7 @@ agent_executor = create_sql_agent(
     verbose=True
 )
 
-agent_executor.run("using the teachers table, find the first_name and last name of teachers who earn less the mean salary?")
-
+#agent_executor.run(" ")
 class ChatResource(BaseResource):
     def post(self):
         try:
